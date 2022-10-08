@@ -137,8 +137,10 @@ class Game:
         self.player.redraw(display)
         if self.enemy:
             self.enemy.redraw(display)
+          #  Если есть пуля - перерисовать
         if self.player.bullet:
             self.player.bullet.redraw(display)
+          # Игра окончена - вывести надпись и удалить врага
         if self.over:
             restart_surface = restart_font.render("Press space to restart", True, (255, 0, 0))
             restart_rect = restart_surface.get_rect(center=(800 / 2, 600 / 2))
@@ -148,14 +150,16 @@ class Game:
 
     def event_process(self, event,display):
         self.player.event_process(event)
-
+        
+        # Пуля попадет во врага - пуля с врагом исчезают
         if self.player.bullet and self.enemy:
             rect_enemy = pygame.Rect(self.player.bullet.x, self.player.bullet.y , self.player.bullet.width, self.player.bullet.height)
             rect_other = pygame.Rect(self.enemy.x, self.enemy.y, self.enemy.width, self.enemy.height)
             if rect_enemy.colliderect(rect_other):
                 self.enemy = None
                 self.player.bullet = None
-
+                
+        # Игрок столкнется с врагом - игра окончена
         if self.enemy:
             rect_enemy = pygame.Rect(self.enemy.x, self.enemy.y, self.enemy.width, self.enemy.height)
             rect_other = pygame.Rect(self.player.x, self.player.y, self.player.width, self.player.height)
@@ -196,12 +200,17 @@ class Application:
             for event in pygame.event.get():
                 if self.event_close_application(event):
                     self.running = False
+                 
+                 
                 if self.restart(event):
                     game.over = False
+                   
+                # Игра окончена - пропустить обработку событий
                 if game.over:
                     continue
                 game.event_process(event, self.display)
                 clock.tick(FPS)
+     # Если нажат пробел - перезапустить игру        
     def restart(self,event):
         if event.type == pygame.KEYDOWN:
              return event.key == pygame.K_SPACE
